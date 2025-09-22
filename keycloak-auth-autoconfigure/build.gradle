@@ -8,4 +8,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
-publishing { publications { maven(MavenPublication) { from components.java } } }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') { fromResolutionResult() }
+                usage('java-runtime') { fromResolutionResult() }
+            }
+        }
+    }
+}

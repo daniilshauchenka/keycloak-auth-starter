@@ -5,4 +5,15 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter-security'
     api 'org.springframework.boot:spring-boot-starter-actuator'
 }
-publishing { publications { maven(MavenPublication) { from components.java } } }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') { fromResolutionResult() }
+                usage('java-runtime') { fromResolutionResult() }
+            }
+        }
+    }
+}
