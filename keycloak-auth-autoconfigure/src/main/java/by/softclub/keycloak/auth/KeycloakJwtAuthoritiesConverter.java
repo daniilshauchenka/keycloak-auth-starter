@@ -6,24 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-/**
- * Достаёт роли из Keycloak:
- * - realm_access.roles -> ROLE_...
- * - resource_access.<client-id>.roles -> ROLE_...
- * client-id берётся из 'azp' или 'aud' (берём первый).
- */
+@AllArgsConstructor
 public class KeycloakJwtAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
 
     private final KeycloakAuthProperties.RoleSource roleSource;
-
-    public KeycloakJwtAuthoritiesConverter(KeycloakAuthProperties.RoleSource roleSource) {
-        this.roleSource = roleSource;
-    }
+    private final String resourceClientId;
 
     @Override
     public Collection<GrantedAuthority> convert(Jwt jwt) {
@@ -45,7 +38,8 @@ public class KeycloakJwtAuthoritiesConverter implements Converter<Jwt, Collectio
             .collect(Collectors.toSet());
     }
 
-    private static String resolveClientId(Jwt jwt) {
+    private String resolveClientId(Jwt jwt) {
+        if (resourceClientId != null) return resourceClientId;
         String azp = jwt.getClaim("azp");
         if (azp != null) return azp;
         List<String> aud = jwt.getAudience();
