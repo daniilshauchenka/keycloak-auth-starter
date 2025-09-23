@@ -2,6 +2,7 @@ package by.softclub.keycloak.auth;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -51,45 +52,19 @@ public class KeycloakAuthAutoConfiguration {
     public Converter<Jwt, ? extends AbstractAuthenticationToken> keycloakJwtAuthConverter(
         KeycloakAuthProperties props) {
 
-        var roleConv  = new KeycloakJwtAuthoritiesConverter(
+        KeycloakJwtAuthoritiesConverter roleConv = new KeycloakJwtAuthoritiesConverter(
             props.getRoleSource(),
             props.getResourceClientId()
         );
-        var scopeConv = new JwtGrantedAuthoritiesConverter();
+        JwtGrantedAuthoritiesConverter scopeConv = new JwtGrantedAuthoritiesConverter();
 
         return jwt -> {
-            var auths = new HashSet<GrantedAuthority>();
-            if (props.isAddScopeAuthorities()) auths.addAll(scopeConv.convert(jwt)); // SCOPE_*
-            auths.addAll(roleConv.convert(jwt));                                     // ROLE_*
+            Set<GrantedAuthority> auths = new HashSet<>();
+            if (props.isAddScopeAuthorities()) {
+                auths.addAll(scopeConv.convert(jwt));
+            }
+            auths.addAll(roleConv.convert(jwt));
             return new JwtAuthenticationToken(jwt, auths);
         };
     }
-//
-//    @Bean
-//    @ConditionalOnMissingBean(SecurityFilterChain.class)
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-//        KeycloakAuthProperties props) throws Exception {
-//        KeycloakJwtAuthoritiesConverter roleConv  = new KeycloakJwtAuthoritiesConverter(props.getRoleSource(), props.getResourceClientId());
-//        JwtGrantedAuthoritiesConverter scopeConv = new JwtGrantedAuthoritiesConverter();
-//
-//        http.csrf(csrf -> csrf.disable())
-//            .authorizeHttpRequests(reg -> reg
-//                .requestMatchers(props.getPermitAll().toArray(String[]::new)).permitAll()
-//                .anyRequest().authenticated()
-//            )
-//            .oauth2ResourceServer(oauth2 -> oauth2
-//                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken -> {
-//                    var auths = new java.util.HashSet<org.springframework.security.core.GrantedAuthority>();
-//                    if (props.isAddScopeAuthorities()) {
-//                        auths.addAll(scopeConv.convert(jwtToken)); // SCOPE_*
-//                    }
-//                    auths.addAll(roleConv.convert(jwtToken));      // ROLE_*
-//                    return new org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken(
-//                        jwtToken, auths
-//                    );
-//                }))
-//            );
-//
-//        return http.build();
-//    }
 }

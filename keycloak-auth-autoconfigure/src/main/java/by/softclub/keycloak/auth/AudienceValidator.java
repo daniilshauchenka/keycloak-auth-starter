@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 
-    private final OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
+    private static  final OAuth2Error error = new OAuth2Error("invalid_token", "The required audience is missing", null);
     private final List<String> acceptedAudiences;
 
     public AudienceValidator(List<String> acceptedAudiences) {
