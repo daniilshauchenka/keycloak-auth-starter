@@ -33,7 +33,6 @@ public class KeycloakAuthAutoConfiguration {
     @ConditionalOnProperty(prefix = "spring.security.oauth2.resourceserver.jwt", name = "issuer-uri")
     public JwtDecoder jwtDecoder(org.springframework.core.env.Environment env,
         KeycloakAuthProperties props) {
-
         String issuer = env.getProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri");
         NimbusJwtDecoder decoder = JwtDecoders.fromIssuerLocation(issuer);
 
