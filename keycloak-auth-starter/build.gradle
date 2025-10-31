@@ -1,0 +1,16 @@
+plugins { id 'java-library'; id 'maven-publish' }
+dependencies {
+    api project(':keycloak-auth-autoconfigure')
+}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            versionMapping {
+                usage('java-api') { fromResolutionResult() }
+                usage('java-runtime') { fromResolutionResult() }
+            }
+        }
+    }
+}

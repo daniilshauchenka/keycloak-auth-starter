@@ -1,0 +1,16 @@
+plugins { id 'io.spring.dependency-management' version "$springDependencyManagementVersion" }
+
+allprojects {
+    group = 'by.softclub'
+    version = '0.0.2-SNAPSHOT'
+    repositories { mavenCentral() }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+    java { toolchain { languageVersion = JavaLanguageVersion.of(findProperty('javaVersion') as String) } }
+    dependencyManagement {
+        imports { mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}" }
+    }
+}
