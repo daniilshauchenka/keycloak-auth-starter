@@ -3,7 +3,27 @@ plugins { id 'io.spring.dependency-management' version "$springDependencyManagem
 allprojects {
     group = 'by.softclub'
     version = '0.0.2-SNAPSHOT'
-    repositories { mavenCentral() }
+
+
+    def nexusBase = System.getenv("NEXUS_URL")
+    def nexusUser = System.getenv("NEXUS_USER")
+    def nexusPass = System.getenv("NEXUS_PASS")
+
+    if (!nexusBase || !nexusUser || !nexusPass) {
+        throw new GradleException("Missing required Nexus environment variables (NEXUS_URL, NEXUS_USER, NEXUS_PASS)")
+    }
+
+    repositories {
+        maven {
+            url = uri("${nexusBase}/repository/maven-public/")
+            allowInsecureProtocol = true
+            credentials {
+                username = nexusUser
+                password = nexusPass
+            }
+        }
+        mavenCentral()
+    }
 }
 
 subprojects {

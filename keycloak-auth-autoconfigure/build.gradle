@@ -3,19 +3,39 @@ dependencies {
     api 'org.springframework.boot:spring-boot-autoconfigure'
     api 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     api 'org.springframework.boot:spring-boot-starter-security'
+
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+def nexusBase = System.getenv("NEXUS_URL")
+def nexusUser = System.getenv("NEXUS_USER")
+def nexusPass = System.getenv("NEXUS_PASS")
+
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-
             versionMapping {
-                usage('java-api') { fromResolutionResult() }
-                usage('java-runtime') { fromResolutionResult() }
+                allVariants {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "nexus"
+            def releases = "${nexusBase}/repository/maven-releases/"
+            def snapshots = "${nexusBase}/repository/maven-snapshots/"
+            url = version.endsWith("SNAPSHOT") ? uri(snapshots) : uri(releases)
+            allowInsecureProtocol = true
+            credentials {
+                username = nexusUser
+                password = nexusPass
             }
         }
     }

@@ -1,4 +1,2 @@
 rootProject.name = 'keycloak-auth'
 include 'keycloak-auth-starter', 'keycloak-auth-autoconfigure'
-include 'keycloak-auth-autoconfigure'
-
