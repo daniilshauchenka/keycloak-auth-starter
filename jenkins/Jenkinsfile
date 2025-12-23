@@ -1,0 +1,69 @@
+def telegram
+
+pipeline {
+    agent any
+    stages {
+        stage('Start') {
+            steps {
+                script {
+                    telegram = load 'jenkins/telegram.groovy'
+                    withBuildUser {
+                        telegram.notifyStart(env.BUILD_USER)
+                    }
+                }
+            }
+        }
+
+        stage('Load env from Jenkins credentials') {
+                steps {
+                    withCredentials([file(credentialsId: 'leasing-env', variable: 'ENV_FILE')]) {
+                        script {
+                            def envLines = readFile(ENV_FILE).split('\n')
+                            envLines.each { line ->
+                                if (line.trim() && !line.startsWith('#')) {
+                                    def (key, value) = line.split('=', 2)
+                                    env[key.trim()] = value.trim()
+                                }
+                            }
+
+                            echo "NEXUS_URL = ${env.NEXUS_URL}"
+                            echo "NEXUS_USER = ${env.NEXUS_USER}"
+                            echo "NEXUS_PASS = ${env.NEXUS_PASS}"
+
+                        }
+                    }
+                }
+            }
+        stage('Build & Publish Starter') {
+            steps {
+                sh '''
+                  chmod +x gradlew
+                  ./gradlew clean build publishMavenPublicationToNexusRepository --no-daemon
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            script {
+                telegram.deleteStartMessage()
+                withBuildUser {
+                    telegram.notifyFinish("✅ SUCCESS", env.BUILD_USER, currentBuild.duration)
+                }
+            }
+        }
+        failure {
+            script {
+                telegram.deleteStartMessage()
+                withBuildUser {
+                    telegram.notifyFinish("❌ FAILURE", env.BUILD_USER, currentBuild.duration)
+                }
+            }
+        }
+        always {
+                sh 'docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+        }
+    }
+}
+
