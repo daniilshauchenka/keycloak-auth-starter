@@ -9,11 +9,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-web'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
-
-def nexusBase = System.getenv("NEXUS_URL")
-def nexusUser = System.getenv("NEXUS_USER")
-def nexusPass = System.getenv("NEXUS_PASS")
 
 publishing {
     publications {
@@ -23,19 +21,6 @@ publishing {
                 allVariants {
                     fromResolutionResult()
                 }
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = "nexus"
-            def releases = "${nexusBase}/repository/maven-releases/"
-            def snapshots = "${nexusBase}/repository/maven-snapshots/"
-            url = version.endsWith("SNAPSHOT") ? uri(snapshots) : uri(releases)
-            allowInsecureProtocol = true
-            credentials {
-                username = nexusUser
-                password = nexusPass
             }
         }
     }

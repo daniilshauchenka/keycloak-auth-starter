@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class KeycloakJwtAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
@@ -22,20 +24,22 @@ public class KeycloakJwtAuthoritiesConverter implements Converter<Jwt, Collectio
     public Collection<GrantedAuthority> convert(Jwt jwt) {
         Set<String> roles = new HashSet<>();
 
-        if (roleSource == KeycloakAuthProperties.RoleSource.REALM || roleSource == KeycloakAuthProperties.RoleSource.BOTH) {
+        if (roleSource == KeycloakAuthProperties.RoleSource.REALM
+                || roleSource == KeycloakAuthProperties.RoleSource.BOTH) {
             Map<String, Object> realmAccess = jwt.getClaim("realm_access");
             roles.addAll(extractRoles(realmAccess));
         }
 
-        if (roleSource == KeycloakAuthProperties.RoleSource.RESOURCE || roleSource == KeycloakAuthProperties.RoleSource.BOTH) {
+        if (roleSource == KeycloakAuthProperties.RoleSource.RESOURCE
+                || roleSource == KeycloakAuthProperties.RoleSource.BOTH) {
             Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
             roles.addAll(extractClientRoles(resourceAccess, resolveClientId(jwt)));
         }
 
         return roles.stream()
-            .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toSet());
+                .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
     }
 
     private String resolveClientId(Jwt jwt) {

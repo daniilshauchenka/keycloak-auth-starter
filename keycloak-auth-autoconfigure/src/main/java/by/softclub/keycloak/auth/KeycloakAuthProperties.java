@@ -1,9 +1,11 @@
 package by.softclub.keycloak.auth;
 
 import java.util.List;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Setter
 @Getter
@@ -16,10 +18,13 @@ public class KeycloakAuthProperties {
 
     private RoleSource roleSource = RoleSource.BOTH;
 
-    public enum RoleSource {REALM, RESOURCE, BOTH}
+    public enum RoleSource {
+        REALM,
+        RESOURCE,
+        BOTH
+    }
 
     private boolean addScopeAuthorities = true;
 
     private String resourceClientId;
-
 }

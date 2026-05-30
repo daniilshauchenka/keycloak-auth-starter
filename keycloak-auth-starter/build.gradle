@@ -3,27 +3,10 @@ dependencies {
     api project(':keycloak-auth-autoconfigure')
 }
 
-def nexusBase = System.getenv("NEXUS_URL")
-def nexusUser = System.getenv("NEXUS_USER")
-def nexusPass = System.getenv("NEXUS_PASS")
-
 publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-        }
-    }
-    repositories {
-        maven {
-            name = "nexus"
-            def releases = "${nexusBase}/repository/maven-releases/"
-            def snapshots = "${nexusBase}/repository/maven-snapshots/"
-            url = version.endsWith("SNAPSHOT") ? uri(snapshots) : uri(releases)
-            allowInsecureProtocol = true
-            credentials {
-                username = nexusUser
-                password = nexusPass
-            }
         }
     }
 }
